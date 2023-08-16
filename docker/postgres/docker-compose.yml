@@ -1,0 +1,26 @@
+# Use postgres/example user/password credentials
+version: '3.5'
+
+services:
+  postgres:
+    container_name: postgres_container
+    build: postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-postgres_db}
+      PGDATA: ${PGDATA:-/data/postgres}
+    volumes:
+      - postgres:${PGDATA:-/data/postgres}
+    ports:
+      - "${DB_PORT:-5430}:5432"
+    networks:
+      - postgres
+    restart: unless-stopped
+
+networks:
+  postgres:
+    driver: bridge
+
+volumes:
+  postgres:
