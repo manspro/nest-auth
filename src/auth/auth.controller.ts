@@ -16,7 +16,7 @@ import { LoginDto } from './dto/login.dto';
 import { AuthService } from './auth.service';
 import { ITokens } from './interfaces';
 import { REFRESH_TOKEN } from './constants';
-import { Cookie } from '@common/common/decorators';
+import { Cookie, UserAgent } from '@common/common/decorators';
 
 @Controller('auth')
 export class AuthController {
@@ -34,31 +34,30 @@ export class AuthController {
     }
 
     @Post('login')
-    async login(@Body() dto: LoginDto, @Res() res: Response) {
-        const tokens = await this.authService.login(dto);
+    async login(@Body() dto: LoginDto, @Res() res: Response, @UserAgent() agent: string) {
+        const tokens = await this.authService.login(dto, agent);
 
         if (!tokens) {
             throw new BadRequestException(`Не удалось войти с данными: ${JSON.stringify(dto)}`);
         }
 
-        // return { accessToken: tokens.accessToken };
-        this.setRefreshTokenToCookie(tokens, res);
+        await this.setRefreshTokenToCookie(tokens, res);
     }
 
     @Get('refresh-tokens')
-    async refreshTokens(@Cookie(REFRESH_TOKEN) refreshToken: string, @Res() res: Response) {
+    async refreshTokens(@Cookie(REFRESH_TOKEN) refreshToken: string, @Res() res: Response, @UserAgent() agent: string) {
         if (!refreshToken) {
             throw new UnauthorizedException();
         }
-        const tokens = await this.authService.refreshToken(refreshToken);
+        const tokens = await this.authService.refreshToken(refreshToken, agent);
 
         if (!tokens) {
             throw new UnauthorizedException();
         }
-        this.setRefreshTokenToCookie(tokens, res);
+        await this.setRefreshTokenToCookie(tokens, res);
     }
 
-    private setRefreshTokenToCookie(tokens: ITokens, res: Response) {
+    private async setRefreshTokenToCookie(tokens: ITokens, res: Response): Promise<void> {
         if (!tokens) {
             throw new UnauthorizedException();
         }
