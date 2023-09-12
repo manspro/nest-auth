@@ -51,7 +51,7 @@ export class AuthService {
         try {
             const user = await this.userService.findOne(dto.email);
 
-            if (!user || compareSync(dto.password, user.password)) {
+            if (!user || !compareSync(dto.password, user.password)) {
                 throw new UnauthorizedException('Неверный логин или пароль');
             }
             return this.generateTokens(user, agent);
