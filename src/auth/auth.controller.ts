@@ -16,14 +16,16 @@ import { LoginDto } from './dto/login.dto';
 import { AuthService } from './auth.service';
 import { ITokens } from './interfaces';
 import { REFRESH_TOKEN } from './constants';
-import { Cookie, UserAgent } from '@common/common/decorators';
+import { Cookie, Public, UserAgent } from '@common/common/decorators';
 
+@Public()
 @Controller('auth')
 export class AuthController {
     constructor(
         private readonly authService: AuthService,
         private readonly configService: ConfigService,
     ) {}
+
     @Post('register')
     async register(@Body() dto: RegisterDto) {
         const user = await this.authService.register(dto);
