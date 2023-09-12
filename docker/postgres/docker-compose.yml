@@ -13,7 +13,7 @@ services:
     volumes:
       - postgres:${PGDATA:-/data/postgres}
     ports:
-      - "${DB_PORT:-5430}:5432"
+      - "${DB_PORT:-5432}:5432"
     networks:
       - postgres
     restart: unless-stopped
