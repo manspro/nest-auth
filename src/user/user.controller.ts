@@ -11,18 +11,12 @@ import {
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserResponse } from './responses';
+import { CurrentUser } from '@common/common/decorators';
+import { IJwtPayload } from '../auth/interfaces';
 
 @Controller('user')
 export class UserController {
     constructor(private readonly userService: UserService) {}
-
-    @UseInterceptors(ClassSerializerInterceptor)
-    @Post()
-    async createUser(@Body() dto: any) {
-        const user = await this.userService.save(dto);
-
-        return new UserResponse(user);
-    }
 
     @UseInterceptors(ClassSerializerInterceptor)
     @Get(':idOrEmail')
@@ -34,7 +28,7 @@ export class UserController {
 
     @UseInterceptors(ClassSerializerInterceptor)
     @Delete(':id')
-    async deleteUser(@Param('id', ParseUUIDPipe) id: string) {
-        return this.userService.delete(id);
+    async deleteUser(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: IJwtPayload) {
+        return this.userService.delete(id, user);
     }
 }
