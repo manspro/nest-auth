@@ -20,6 +20,7 @@ import { ITokens } from './interfaces';
 import { REFRESH_TOKEN } from './constants';
 import { Cookie, Public, UserAgent } from '@common/common/decorators';
 import { UserResponse } from '../user/responses';
+import { tr } from 'date-fns/locale';
 
 @Public()
 @Controller('auth')
@@ -47,8 +48,18 @@ export class AuthController {
         if (!tokens) {
             throw new BadRequestException(`Не удалось войти с данными: ${JSON.stringify(dto)}`);
         }
-
         await this.setRefreshTokenToCookie(tokens, res);
+    }
+
+    @Get('logout')
+    async logout(@Cookie(REFRESH_TOKEN) refreshToken: string, @Res() res: Response) {
+        if (!refreshToken) {
+            res.sendStatus(HttpStatus.OK);
+            return;
+        }
+        await this.authService.deleteRefreshToken(refreshToken);
+        res.cookie(REFRESH_TOKEN, '', { httpOnly: true, secure: true, expires: new Date() });
+        res.sendStatus(HttpStatus.OK);
     }
 
     @Get('refresh-tokens')
