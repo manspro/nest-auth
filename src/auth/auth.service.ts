@@ -49,7 +49,7 @@ export class AuthService {
 
     async login(dto: LoginDto, agent: string): Promise<ITokens> {
         try {
-            const user = await this.userService.findOne(dto.email);
+            const user = await this.userService.findOne(dto.email, true);
 
             if (!user || !compareSync(dto.password, user.password)) {
                 throw new UnauthorizedException('Неверный логин или пароль');
