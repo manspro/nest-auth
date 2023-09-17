@@ -17,7 +17,7 @@ export class UserService {
     ) {}
 
     async save(user: Partial<User>) {
-        const hashPassword = await this.hashPassword(user.password);
+        const hashPassword = user.password ? await this.hashPassword(user.password) : null;
 
         return this.prismaService.user.create({
             data: {
@@ -36,7 +36,6 @@ export class UserService {
         const user = await this.cacheManager.get<User>(idOrEmail);
 
         if (!user) {
-            console.log();
             const user = await this.prismaService.user.findFirst({
                 where: {
                     OR: [{ id: idOrEmail }, { email: idOrEmail }],
