@@ -16,7 +16,6 @@ import { compareSync } from 'bcryptjs';
 import { v4 } from 'uuid';
 import { Provider, Token, User } from '@prisma/client';
 import { add } from 'date-fns';
-import { HttpService } from '@nestjs/axios';
 
 @Injectable()
 export class AuthService {
@@ -111,13 +110,15 @@ export class AuthService {
         return this.prismaService.token.delete({ where: { token } });
     }
 
-    async googleAuth(email: string, agent: string) {
+    async providerAuth(email: string, agent: string, provider: Provider) {
         const userExist = await this.userService.findOne(email);
         if (userExist) {
-            return this.generateTokens(userExist, agent);
+            const user = await this.userService.save({ email, provider });
+
+            return this.generateTokens(user, agent);
         }
         try {
-            const user = await this.userService.save({ email, provider: Provider.GOOGLE });
+            const user = await this.userService.save({ email, provider });
 
             if (!user) {
                 throw new HttpException(
