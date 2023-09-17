@@ -2,9 +2,9 @@ import { Provider, Role, User } from '@prisma/client';
 import { Exclude } from 'class-transformer';
 
 export class UserResponse implements User {
-    createdAt: Date;
-    email: string;
     id: string;
+
+    email: string;
 
     @Exclude()
     password: string;
@@ -12,7 +12,13 @@ export class UserResponse implements User {
     @Exclude()
     provider: Provider;
 
+    @Exclude()
+    isBlocked: boolean;
+
     roles: Role[];
+
+    createdAt: Date;
+
     updatedAt: Date;
 
     constructor(user: User) {
